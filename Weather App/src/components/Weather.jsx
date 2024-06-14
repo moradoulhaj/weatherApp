@@ -39,9 +39,10 @@ function Weather() {
 
     // let url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=Metric&appid=${Api}`;
     try {
-      let Api = "4c70cc9610b6ce35762a9f45ba96b62a";
       let response = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=Metric&appid=${Api}`
+        `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=Metric&appid=${
+          import.meta.env.VITE_APP_API
+        }`
       );
       let data = await response.json();
       const icon = allIcons[data.weather[0].icon + ".png"] || clear_icon;
@@ -52,8 +53,7 @@ function Weather() {
         name: data.name,
         icon: icon,
       });
-      console.log(data.weather[0].icon);
-      console.log(allIcons[data.weather[0].icon]);
+
       // await console.log(allIcons[data.weather[0].icon]);
     } catch (error) {}
   };
