@@ -8,9 +8,12 @@ import rain_icon from "../assets/rain.png";
 import snow_icon from "../assets/snow.png";
 import wind_icon from "../assets/wind.png";
 import "./Weather.css";
+
 function Weather() {
-  const [weatherData, setWeatherData] = useState(false);
+  const [weatherData, setWeatherData] = useState(null);
+  const [error, setError] = useState(null);
   const inputCountryRef = useRef();
+
   const allIcons = {
     "01n.png": clear_icon,
     "01d.png": clear_icon,
@@ -31,21 +34,28 @@ function Weather() {
     "50d.png": snow_icon,
     "50n.png": snow_icon,
   };
+
   const search = async (city) => {
-    if (city == "") {
-      alert("Would you enter city name!");
-      return 0;
+    if (!city) {
+      alert("Please enter a city name!");
+      return;
     }
 
-    // let url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=Metric&appid=${Api}`;
     try {
+      setError(null);
       let response = await fetch(
         `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=Metric&appid=${
           import.meta.env.VITE_APP_API
         }`
       );
+
+      if (!response.ok) {
+        throw new Error("City not found");
+      }
+
       let data = await response.json();
       const icon = allIcons[data.weather[0].icon + ".png"] || clear_icon;
+
       setWeatherData({
         temperature: data.main.temp,
         humidity: data.main.humidity,
@@ -53,48 +63,51 @@ function Weather() {
         name: data.name,
         icon: icon,
       });
-
-      // await console.log(allIcons[data.weather[0].icon]);
-    } catch (error) {}
+    } catch (error) {
+      setWeatherData(null);
+      setError(error.message);
+    }
   };
+
   return (
     <div className="weather">
       <div className="search-bar">
         <input
           type="text"
-          name=""
-          id=""
           placeholder="Search"
           className="cityInput"
           ref={inputCountryRef}
         />
         <img
           src={search_icon}
-          alt=""
+          alt="Search"
           onClick={() => search(inputCountryRef.current.value)}
         />
       </div>
-      <div>
-        <img src={weatherData.icon} alt="" className="weather-icon" />
-        <p className="temp">{weatherData.temperature}°C</p>
-        <p className="location">{weatherData.name}</p>
-      </div>
-      <div className="weather-data">
-        <div className="col">
-          <img src={humidity_icon} alt="" />
-          <div>
-            <p>{weatherData.humidity} %</p>
-            <span>Humidity</span>
+      {error && <p className="error">{error}</p>}
+      {weatherData && (
+        <div>
+          <img src={weatherData.icon} alt="Weather Icon" className="weather-icon" />
+          <p className="temp">{weatherData.temperature}°C</p>
+          <p className="location">{weatherData.name}</p>
+          <div className="weather-data">
+            <div className="col">
+              <img src={humidity_icon} alt="Humidity" />
+              <div>
+                <p>{weatherData.humidity} %</p>
+                <span>Humidity</span>
+              </div>
+            </div>
+            <div className="col">
+              <img src={wind_icon} alt="Wind Speed" />
+              <div>
+                <p>{weatherData.wind} km/h</p>
+                <span>Wind Speed</span>
+              </div>
+            </div>
           </div>
         </div>
-        <div className="col">
-          <img src={wind_icon} alt="" />
-          <div>
-            <p>{weatherData.wind} km/h</p>
-            <span>Wind Speed</span>
-          </div>
-        </div>
-      </div>
+      )}
     </div>
   );
 }
