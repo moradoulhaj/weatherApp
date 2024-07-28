@@ -87,7 +87,11 @@ function Weather() {
       {error && <p className="error">{error}</p>}
       {weatherData && (
         <div>
-          <img src={weatherData.icon} alt="Weather Icon" className="weather-icon" />
+          <img
+            src={weatherData.icon}
+            alt="Weather Icon"
+            className="weather-icon"
+          />
           <p className="temp">{weatherData.temperature}°C</p>
           <p className="location">{weatherData.name}</p>
           <div className="weather-data">
